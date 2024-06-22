@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "danote-36550": {
+      "hosting": {
+        "danotes": [
+          "danote-36550"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "danote-36550"
+  }
+}
