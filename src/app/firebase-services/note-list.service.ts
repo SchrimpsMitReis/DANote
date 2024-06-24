@@ -20,25 +20,46 @@ export class NoteListService {
     this.unsubTrash = this.subTrashList()
   }
 
-  async addNote(item: Note){
-    await addDoc(this.getNotesRef(), item).catch( (e) =>{ console.error(e)})
-    .then(
-      (docRef) => {console.log("Document written with ID= ", docRef?.id);
-      }
-    )
+  async addNote(item: Note) {
+    await addDoc(this.getNotesRef(), item).catch((e) => { console.error(e) })
+      .then(
+        (docRef) => {
+          console.log("Document written with ID= ", docRef?.id);
+        }
+      )
   }
 
-  async updateNote(id: string, docId: string, item: {}){
-    await updateDoc(this.getSingleDocRef(id, docId), item).catch(
-      (e)=>{console.error(e)});
+  async updateNote(note: Note) {
+    if (note.id) {
+      let docRef = this.getSingleDocRef(this.getColId(note), note.id)
+      await updateDoc(docRef, this.getCleanJSON(note)).catch(
+        (e) => { console.error(e) });
     }
 
-
-
-  ngOnDestroy(){
-  this.unsubNotes()
   }
-  subTrashList(){
+
+  getColId(note: Note){
+    if(note.type == 'note'){
+      return 'notes'
+    }else{
+      return 'trash'
+    }
+  
+  }
+
+  getCleanJSON(note: Note){
+    return {
+      type: note.type,
+      title: note.title,
+      content: note.content,
+      marked: note.marked,
+      }
+  }
+
+  ngOnDestroy() {
+    this.unsubNotes()
+  }
+  subTrashList() {
     return onSnapshot(this.getTrashRef(), (list) => {
       this.trashNotes = []
       list.forEach(element => {
@@ -46,7 +67,7 @@ export class NoteListService {
       })
     })
   }
-  subNotesList(){
+  subNotesList() {
     return onSnapshot(this.getNotesRef(), (list) => {
       this.normalNotes = []
       list.forEach(element => {
@@ -55,12 +76,12 @@ export class NoteListService {
     })
   }
   // Methoden
-  setNodeObject(obj: any){
+  setNodeObject(obj: any) {
     let data = obj.data()
-    
+
     return {
       "id": obj.id,
-      "type": obj.type || "node" ,
+      "type": obj.type || "node",
       "title": data.title || "",
       "content": data.content,
       "marked": obj.marked || false,
